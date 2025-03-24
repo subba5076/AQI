@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Quality Prediction</title>
+    <style>
+        /* Dark Theme Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Changed from height to min-height */
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background: #1e1e1e;
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        h2 {
+            color: #4CAF50;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        table {
+            width: 100%;
+            border-spacing: 15px; /* Added spacing */
+        }
+        td {
+            padding: 5px;
+            text-align: left;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #444;
+            background-color: #333;
+            color: #fff;
+            border-radius: 5px;
+            outline: none;
+            margin-top: 5px; /* Extra spacing between input fields */
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px; /* More spacing above the button */
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            margin-top: 25px;
+            padding: 15px;
+            background: #2a2a2a;
+            border-radius: 8px;
+        }
+        .aqi-good { color: #00E676; }
+        .aqi-moderate { color: #FFEB3B; }
+        .aqi-unhealthy { color: #FF5722; }
+        .aqi-hazardous { color: #D32F2F; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Predict PM10, PM2.5 & AQI</h2>
+        <form method="POST">
+            <table>
+                {% for feature in ['CO(GT)', 'NOx(GT)', 'NMHC(GT)', 'C6H6(GT)', 'PT08.S1(CO)', 'PT08.S2(NMHC)', 
+                                   'PT08.S3(NOx)', 'NO2(GT)', 'PT08.S4(NO2)', 'PT08.S5(O3)', 'T', 'RH', 'AH', 
+                                   'Year', 'Month', 'Day', 'Hour', 'Wind'] %}
+                    {% if loop.index0 % 2 == 0 %}
+                    <tr>
+                    {% endif %}
+                        <td>
+                            <label>{{ feature }}</label><br>
+                            <input type="number" step="any" name="{{ feature }}" required>
+                        </td>
+                    {% if loop.index0 % 2 == 1 or loop.last %}
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            </table>
+            <button type="submit">Predict</button>
+        </form>
+
+        {% if prediction_pm10 is not none and prediction_pm25 is not none and aqi is not none %}
+            <div class="result">
+                <h3>Predicted PM10: {{ prediction_pm10 }}</h3>
+                <h3>Predicted PM2.5: {{ prediction_pm25 }}</h3>
+                <h3>Final AQI: <span class="{{ 'aqi-good' if aqi <= 50 else 
+                                              'aqi-moderate' if aqi <= 100 else 
+                                              'aqi-unhealthy' if aqi <= 200 else 
+                                              'aqi-hazardous' }}">{{ aqi }}</span></h3>
+                <h3>Air Quality: {{ aqi_category }}</h3>
+            </div>
+        {% endif %}
+    </div>
+
+</body>
+</html>
